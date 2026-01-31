@@ -200,7 +200,7 @@ print(f"Eşdeğer mi: {is_equivalent}")
 
 ## 📄 Lisans
 
-Bu proje eğitim amaçlı geliştirilmiştir.
+Bu kod eğitim amaçlıdır, hatalar içerebilir, lütfen kendi kontrollerinizi yapın
 
 ## 👤 Geliştirici
 
