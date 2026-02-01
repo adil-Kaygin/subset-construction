@@ -428,8 +428,8 @@ elif menu_option == "2️⃣ DFA Minimization":
                         
                         # Tablo gösterimi
                         if step['type'] in ['base_case', 'iteration', 'final']:
-                            with st.expander("📊 Ayırt Edilebilirlik Tablosu"):
-                                st.text(minimizer.get_table_display())
+                            st.markdown("**📊 Ayırt Edilebilirlik Tablosu:**")
+                            st.text(minimizer.get_table_display())
             
             # Final sonuç
             st.divider()
