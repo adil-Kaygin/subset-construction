@@ -204,4 +204,4 @@ Bu kod eğitim amaçlıdır, hatalar içerebilir, lütfen kendi kontrollerinizi 
 
 ## 👤 Geliştirici
 
-BIL 334 - Otomata Teorisi Projesi
+Claude 4.5 Opus
