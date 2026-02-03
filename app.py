@@ -335,10 +335,17 @@ elif menu_option == "🎨 JSON Creator (GUI)":
                     
                     # For DFA, only allow one target state
                     if automata_type == "DFA" and len(targets) > 1:
-                        st.warning(f"⚠️ DFA allows only one target state per symbol")
-                        targets = [targets[0]]
+                        st.error(f"⚠️ DFA allows only one target state per symbol. Please enter a single state.")
+                        continue  # Skip this transition
                     
-                    temp_transitions[symbol] = targets if automata_type == "NFA" else targets[0]
+                    # For DFA, ensure we have exactly one target
+                    if automata_type == "DFA":
+                        if len(targets) == 1:
+                            temp_transitions[symbol] = targets[0]
+                        # else: skip empty targets for DFA
+                    else:
+                        # For NFA, store as list
+                        temp_transitions[symbol] = targets
                     
                     # Add new states to queue and states list
                     for target in targets:
@@ -424,7 +431,9 @@ elif menu_option == "🎨 JSON Creator (GUI)":
                 else:
                     # For DFA, ensure target is a string
                     if isinstance(targets, list):
-                        json_output["transitions"][state][symbol] = targets[0] if targets else ""
+                        if targets:  # Only add transition if there's a target
+                            json_output["transitions"][state][symbol] = targets[0]
+                        # else: skip empty transitions
                     else:
                         json_output["transitions"][state][symbol] = targets
         
