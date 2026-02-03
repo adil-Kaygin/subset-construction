@@ -95,6 +95,7 @@ menu_option = st.sidebar.radio(
     "İşlem Seçin:",
     [
         "🏠 Ana Sayfa",
+        "🎨 JSON Creator (GUI)",
         "1️⃣ NFA → DFA (Lazy Subset)",
         "2️⃣ DFA Minimization",
         "3️⃣ Regex → ε-NFA",
@@ -184,6 +185,302 @@ if menu_option == "🏠 Ana Sayfa":
     """)
     
     st.info("💡 **İpucu:** Her modülde örnek giriş verileri mevcuttur. 'Örnek Yükle' butonunu kullanabilirsiniz.")
+
+
+# ==================== JSON CREATOR (GUI) ====================
+elif menu_option == "🎨 JSON Creator (GUI)":
+    st.header("🎨 Finite Automata JSON Creator")
+    
+    st.markdown("""
+    **Grafik arayüz ile finite automata oluşturun!**
+    
+    Bu araç ile GUI kullanarak NFA veya DFA tanımlayabilir ve JSON formatında çıktı alabilirsiniz.
+    Oluşturulan JSON'u diğer modüllerde kullanabilirsiniz.
+    """)
+    
+    # Initialize session state for the automata builder
+    if 'gui_states' not in st.session_state:
+        st.session_state.gui_states = ['q0']
+    if 'gui_alphabet' not in st.session_state:
+        st.session_state.gui_alphabet = []
+    if 'gui_transitions' not in st.session_state:
+        st.session_state.gui_transitions = {}
+    if 'gui_start_state' not in st.session_state:
+        st.session_state.gui_start_state = 'q0'
+    if 'gui_accept_states' not in st.session_state:
+        st.session_state.gui_accept_states = []
+    if 'gui_state_queue' not in st.session_state:
+        st.session_state.gui_state_queue = ['q0']
+    if 'gui_processed_states' not in st.session_state:
+        st.session_state.gui_processed_states = []
+    if 'gui_automata_type' not in st.session_state:
+        st.session_state.gui_automata_type = 'NFA'
+    
+    # Automata type selection
+    st.subheader("1️⃣ Select Automata Type")
+    automata_type = st.radio(
+        "Choose the type of automata:",
+        ["NFA", "DFA"],
+        horizontal=True,
+        key="automata_type_radio"
+    )
+    st.session_state.gui_automata_type = automata_type
+    
+    # Alphabet definition
+    st.subheader("2️⃣ Define Alphabet")
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        alphabet_input = st.text_input(
+            "Enter alphabet symbols (comma-separated):",
+            value=", ".join(st.session_state.gui_alphabet) if st.session_state.gui_alphabet else "a, b",
+            key="alphabet_input"
+        )
+    with col2:
+        if st.button("Set Alphabet", type="primary"):
+            new_alphabet = [s.strip() for s in alphabet_input.split(',') if s.strip()]
+            st.session_state.gui_alphabet = new_alphabet
+            st.success(f"✅ Alphabet set: {{{', '.join(new_alphabet)}}}")
+    
+    # Display current alphabet
+    if st.session_state.gui_alphabet:
+        st.info(f"**Current Alphabet:** {{{', '.join(st.session_state.gui_alphabet)}}}")
+    
+    # Start state configuration
+    st.subheader("3️⃣ Configure Start State")
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        start_state_input = st.text_input(
+            "Start state:",
+            value=st.session_state.gui_start_state,
+            key="start_state_input"
+        )
+    with col2:
+        if st.button("Set Start State"):
+            st.session_state.gui_start_state = start_state_input
+            if start_state_input not in st.session_state.gui_states:
+                st.session_state.gui_states.append(start_state_input)
+            if start_state_input not in st.session_state.gui_state_queue:
+                st.session_state.gui_state_queue.append(start_state_input)
+            st.success(f"✅ Start state set: {start_state_input}")
+    
+    st.info(f"**Current Start State:** {st.session_state.gui_start_state}")
+    
+    # State queue and transition builder
+    st.subheader("4️⃣ Build Transitions")
+    
+    st.markdown("""
+    **How it works:**
+    1. States are processed from the queue one by one
+    2. For each state, define transitions for each alphabet symbol
+    3. New states introduced in transitions are automatically added to the queue
+    4. Process continues until all states in the queue are processed
+    """)
+    
+    # Display queue status
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("**📋 State Queue (to be processed):**")
+        if st.session_state.gui_state_queue:
+            for state in st.session_state.gui_state_queue:
+                st.write(f"- {state}")
+        else:
+            st.write("*Queue is empty*")
+    
+    with col2:
+        st.markdown("**✅ Processed States:**")
+        if st.session_state.gui_processed_states:
+            for state in st.session_state.gui_processed_states:
+                st.write(f"- {state}")
+        else:
+            st.write("*No states processed yet*")
+    
+    # Process next state from queue
+    if st.session_state.gui_state_queue and st.session_state.gui_alphabet:
+        st.divider()
+        current_state = st.session_state.gui_state_queue[0]
+        st.markdown(f"### 🔵 Processing State: **{current_state}**")
+        
+        # Initialize transitions for current state if not exists
+        if current_state not in st.session_state.gui_transitions:
+            st.session_state.gui_transitions[current_state] = {}
+        
+        # Build transitions for current state
+        st.markdown("**Define outgoing transitions:**")
+        
+        temp_transitions = {}
+        all_symbols = st.session_state.gui_alphabet.copy()
+        if automata_type == "NFA":
+            all_symbols.append("ε")  # Add epsilon for NFA
+        
+        cols = st.columns(len(all_symbols))
+        for idx, symbol in enumerate(all_symbols):
+            with cols[idx]:
+                st.markdown(f"**δ({current_state}, {symbol})**")
+                
+                # Get existing transition if any
+                existing = st.session_state.gui_transitions[current_state].get(symbol, [])
+                if isinstance(existing, str):
+                    existing = [existing]
+                existing_str = ", ".join(existing) if existing else ""
+                
+                target_input = st.text_input(
+                    f"Target state(s):",
+                    value=existing_str,
+                    key=f"trans_{current_state}_{symbol}",
+                    placeholder="q1, q2" if automata_type == "NFA" else "q1"
+                )
+                
+                if target_input.strip():
+                    targets = [t.strip() for t in target_input.split(',') if t.strip()]
+                    
+                    # For DFA, only allow one target state
+                    if automata_type == "DFA" and len(targets) > 1:
+                        st.warning(f"⚠️ DFA allows only one target state per symbol")
+                        targets = [targets[0]]
+                    
+                    temp_transitions[symbol] = targets if automata_type == "NFA" else targets[0]
+                    
+                    # Add new states to queue and states list
+                    for target in targets:
+                        if target not in st.session_state.gui_states:
+                            st.session_state.gui_states.append(target)
+                        if target not in st.session_state.gui_state_queue and target not in st.session_state.gui_processed_states:
+                            st.session_state.gui_state_queue.append(target)
+        
+        # Save and move to next state
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("✅ Save Transitions & Process Next State", type="primary"):
+                # Save transitions for current state
+                st.session_state.gui_transitions[current_state] = temp_transitions
+                
+                # Move current state from queue to processed
+                st.session_state.gui_processed_states.append(current_state)
+                st.session_state.gui_state_queue.pop(0)
+                
+                st.success(f"✅ Transitions saved for {current_state}")
+                st.rerun()
+        
+        with col2:
+            if st.button("⏭️ Skip State"):
+                # Move to next without saving
+                st.session_state.gui_processed_states.append(current_state)
+                st.session_state.gui_state_queue.pop(0)
+                st.rerun()
+    
+    elif st.session_state.gui_alphabet and not st.session_state.gui_state_queue:
+        st.success("✅ All states processed!")
+    
+    # Accept states configuration
+    st.divider()
+    st.subheader("5️⃣ Define Accept States")
+    
+    if st.session_state.gui_states:
+        st.markdown("Select which states are accept (final) states:")
+        
+        accept_states_selected = []
+        cols = st.columns(min(len(st.session_state.gui_states), 5))
+        for idx, state in enumerate(st.session_state.gui_states):
+            with cols[idx % len(cols)]:
+                is_accept = st.checkbox(
+                    state,
+                    value=state in st.session_state.gui_accept_states,
+                    key=f"accept_{state}"
+                )
+                if is_accept:
+                    accept_states_selected.append(state)
+        
+        if st.button("Save Accept States"):
+            st.session_state.gui_accept_states = accept_states_selected
+            st.success(f"✅ Accept states: {{{', '.join(accept_states_selected)}}}")
+        
+        if st.session_state.gui_accept_states:
+            st.info(f"**Current Accept States:** {{{', '.join(st.session_state.gui_accept_states)}}}")
+    
+    # Generate JSON output
+    st.divider()
+    st.subheader("6️⃣ Generated JSON Output")
+    
+    if st.button("🔄 Generate JSON", type="primary"):
+        # Build the JSON structure
+        json_output = {
+            "states": st.session_state.gui_states,
+            "alphabet": st.session_state.gui_alphabet,
+            "transitions": {},
+            "start_state": st.session_state.gui_start_state,
+            "accept_states": st.session_state.gui_accept_states
+        }
+        
+        # Format transitions based on automata type
+        for state, trans in st.session_state.gui_transitions.items():
+            json_output["transitions"][state] = {}
+            for symbol, targets in trans.items():
+                if automata_type == "NFA":
+                    # For NFA, ensure targets is a list
+                    if isinstance(targets, str):
+                        json_output["transitions"][state][symbol] = [targets]
+                    else:
+                        json_output["transitions"][state][symbol] = targets
+                else:
+                    # For DFA, ensure target is a string
+                    if isinstance(targets, list):
+                        json_output["transitions"][state][symbol] = targets[0] if targets else ""
+                    else:
+                        json_output["transitions"][state][symbol] = targets
+        
+        # Add empty transitions for states not yet processed
+        for state in st.session_state.gui_states:
+            if state not in json_output["transitions"]:
+                json_output["transitions"][state] = {}
+        
+        st.session_state.gui_json_output = json_output
+    
+    # Display JSON output
+    if 'gui_json_output' in st.session_state:
+        json_str = json.dumps(st.session_state.gui_json_output, indent=2, ensure_ascii=False)
+        
+        st.markdown("**✨ Your Finite Automata JSON:**")
+        st.code(json_str, language="json")
+        
+        # Download button
+        st.download_button(
+            label="⬇️ Download JSON",
+            data=json_str,
+            file_name=f"{automata_type.lower()}_created.json",
+            mime="application/json"
+        )
+        
+        # Visualize the created automata
+        st.divider()
+        st.subheader("📊 Automata Visualization")
+        
+        try:
+            if automata_type == "NFA":
+                # Convert to NFA object and visualize
+                nfa = NFA.from_json(st.session_state.gui_json_output)
+                show_nfa_graph(nfa, f"Created {automata_type}")
+            else:
+                # Convert to DFA object and visualize
+                dfa = DFA.from_json(st.session_state.gui_json_output)
+                show_dfa_graph(dfa, f"Created {automata_type}")
+            
+            st.success("✅ Automata is valid and visualized!")
+        except Exception as e:
+            st.error(f"❌ Error in automata: {e}")
+    
+    # Reset button
+    st.divider()
+    if st.button("🔄 Reset and Start Over"):
+        st.session_state.gui_states = ['q0']
+        st.session_state.gui_alphabet = []
+        st.session_state.gui_transitions = {}
+        st.session_state.gui_start_state = 'q0'
+        st.session_state.gui_accept_states = []
+        st.session_state.gui_state_queue = ['q0']
+        st.session_state.gui_processed_states = []
+        if 'gui_json_output' in st.session_state:
+            del st.session_state.gui_json_output
+        st.rerun()
 
 
 # ==================== LAZY SUBSET CONSTRUCTION ====================
