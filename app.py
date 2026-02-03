@@ -704,5 +704,5 @@ st.sidebar.markdown("""
 **Finite Automata Toolkit**  
 BIL 334 - Otomata Teorisi
 
-Geliştirici: Adil
+Geliştirici: Claude - Adil
 """)
