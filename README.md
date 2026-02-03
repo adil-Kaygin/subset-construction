@@ -6,6 +6,7 @@ BIL 334 - Otomata Teorisi için geliştirilen interaktif sonlu otomat araç seti
 
 | Modül | Açıklama |
 |-------|----------|
+| **JSON Creator (GUI)** | İnteraktif GUI ile NFA/DFA oluşturma ve JSON çıktısı |
 | **Lazy Subset Construction** | NFA → DFA dönüşümü (adım adım görselleştirme) |
 | **DFA Minimization** | Table-Filling algoritması ile DFA minimizasyonu |
 | **Regex → ε-NFA** | Thompson Construction algoritması |
@@ -87,6 +88,31 @@ Uygulama varsayılan olarak `http://localhost:8501` adresinde açılacaktır.
 - Epsilon geçişleri için `"ε"` sembolünü kullanın
 
 ## 📖 Modül Açıklamaları
+
+### 🎨 JSON Creator (GUI)
+
+**İnteraktif Finite Automata Builder**
+
+Queue-based yaklaşım ile adım adım NFA veya DFA oluşturun.
+
+**Özellikler:**
+- Otomata tipi seçimi (NFA/DFA)
+- Alfabe tanımlama
+- Kuyruk tabanlı durum işleme
+- Geçiş tanımlama ve doğrulama
+- Kabul durumu işaretleme
+- Otomatik JSON çıktısı oluşturma
+- Görselleştirme ve doğrulama
+- JSON indirme
+
+**Adımlar:**
+1. Otomata tipi seçin (NFA/DFA)
+2. Alfabeyi tanımlayın
+3. Başlangıç durumunu ayarlayın (kuyruğa eklenir)
+4. Kuyruktaki durumları sırayla işleyin
+5. Geçişleri tanımlayın ve yeni durumları kuyruğa ekleyin
+6. Kabul durumlarını işaretleyin
+7. JSON çıktısını oluşturun ve indirin
 
 ### 1️⃣ NFA → DFA (Lazy Subset Construction)
 
