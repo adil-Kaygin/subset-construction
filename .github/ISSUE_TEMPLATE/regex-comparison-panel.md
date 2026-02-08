@@ -1,7 +1,7 @@
 ---
 name: RE Karşılaştırma Paneli
 about: İki Regular Expression'ı DFA'ya dönüştürüp karşılaştıran panel eklenmesi
-title: '[FEATURE] RE Karşılaştırma Paneli - İki RE'yi DFA Üzerinden Karşılaştırma'
+title: '[FEATURE] RE Karşılaştırma Paneli - İki RE''yi DFA Üzerinden Karşılaştırma'
 labels: ['enhancement', 'good first issue', 'help wanted']
 assignees: ''
 ---
