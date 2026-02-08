@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 Genel Tartışma
+    url: https://github.com/adil-Kaygin/subset-construction/discussions
+    about: Genel sorular, öneriler ve tartışmalar için
+  - name: 📖 Dokümantasyon
+    url: https://github.com/adil-Kaygin/subset-construction/blob/main/README.md
+    about: Projenin kullanımı ve özellikleri hakkında bilgi
